@@ -1,0 +1,33 @@
+<html>
+    <body>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <h1>Test Page</h1>
+        <p>
+            {% if is_impersonate %}
+            <p>
+                You are currently impersonating {{ impersonating }}.</p>
+            <p>
+                Click <a href="{% url 'impersonate-stop' %}">here</a> to stop impersonating.
+            </p>
+            {% else %}
+            <p>
+                You are not currently impersonating anyone.</p>
+            <p>
+                <ul>
+                {% for user in users %}
+                    <li><a href="{% url 'impersonate-start' user.pk %}{{redirect}}">{{ user }}</a></li>
+                {% empty %}
+                    <li>There are no users to impersonate.</li>
+                {% endfor %}
+                </ul>
+            </p>
+            {% endif %}
+        </p>
+    </body>
+</html>

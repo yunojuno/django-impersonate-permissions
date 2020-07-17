@@ -19,6 +19,7 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "impersonate",
     "impersonate_permissions",
     "tests",
 )
@@ -30,6 +31,8 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "impersonate.middleware.ImpersonateMiddleware",
+    "impersonate_permissions.middleware.ImpersonatePermissionsMiddleware",
 ]
 
 PROJECT_DIR = path.abspath(path.join(path.dirname(__file__)))
@@ -43,6 +46,7 @@ TEMPLATES = [
             "context_processors": [
                 "django.contrib.messages.context_processors.messages",
                 "django.contrib.auth.context_processors.auth",
+                "impersonate_permissions.context_processors.impersonation",
             ]
         },
     }
@@ -93,5 +97,7 @@ COVERAGE_MODULE_EXCLUDES = [
     "django",
     "migrations",
 ]
+
+LOGIN_REDIRECT_URL = "/test"
 
 assert DEBUG, "This settings file can only be used with DEBUG=True"

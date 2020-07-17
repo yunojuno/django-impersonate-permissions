@@ -5,6 +5,8 @@ import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
 
+import impersonate_permissions.models
+
 
 class Migration(migrations.Migration):
 
@@ -37,7 +39,7 @@ class Migration(migrations.Migration):
                 (
                     "window_ends_at",
                     models.DateTimeField(
-                        default=django.utils.timezone.now,
+                        default=impersonate_permissions.models.default_expiry,
                         help_text="When the permission window ends.",
                     ),
                 ),
@@ -67,7 +69,7 @@ class Migration(migrations.Migration):
                     "user",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="impersonate_permissions",
+                        related_name="permission_windows",
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),

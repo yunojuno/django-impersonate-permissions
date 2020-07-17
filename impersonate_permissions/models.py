@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 
 from django.conf import settings
@@ -19,11 +21,26 @@ def default_expiry() -> datetime.datetime:
 
 def permitted_users(request: HttpRequest) -> models.QuerySet:
     """Return users who can be impersonated."""
-    now = timezone.now()
-    user_ids = PermissionWindow.objects.filter(
-        windows_starts_at__lte=now, window_ends_at__gte=now, is_enabled=True
-    ).values_list("user_id", flat=True)
+    user_ids = PermissionWindow.objects.active().values_list("user_id", flat=True)
     return User.objects.filter(id__in=user_ids).order_by("first_name", "last_name")
+
+
+class PermissionWindowQuerySet(models.QuerySet):
+    def active(self) -> PermissionWindowQuerySet:
+        """Return active and enabled PermissionWindows."""
+        now = timezone.now()
+        return self.filter(
+            windows_starts_at__lte=now, window_ends_at__gte=now, is_enabled=True
+        )
+
+    def open(self) -> PermissionWindowQuerySet:
+        """Return windows are open-ended and available for use."""
+        now = timezone.now()
+        return self.filter(
+            windows_starts_at__lte=now,
+            window_type=PermissionWindow.WindowTypeChoices.OPEN,
+            is_enabled=True,
+        )
 
 
 class PermissionWindow(models.Model):
@@ -54,7 +71,7 @@ class PermissionWindow(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="impersonate_permissions",
+        related_name="permission_windows",
     )
     windows_starts_at = models.DateTimeField(
         default=timezone.now, help_text=_("When the permission window begins.")
@@ -74,6 +91,8 @@ class PermissionWindow(models.Model):
     created_at = models.DateTimeField(
         default=timezone.now, help_text=_("When the database record was created.")
     )
+
+    objects = PermissionWindowQuerySet.as_manager()
 
     def __str__(self) -> str:
         return f"Impersonate permissions window [{self.id}] for {self.user}"
