@@ -1,20 +1,18 @@
 import datetime
-from os import getenv
-from typing import Any, Callable
 
 from django.conf import settings
 
+# Default permission window expiry, in minutes
+DEFAULT_PERMISSION_EXPIRY: int = settings.IMPERSONATE.get(
+    "DEFAULT_PERMISSION_EXPIRY", 60
+)
 
-def _setting(key: str, default: Any, cast: Callable) -> Any:
-    key = f"IMPERSONATE_PERMISSIONS_{key}"
-    return cast(getenv(key) or getattr(settings, key, default))
+# Set to True to display flash messages when impersonating
+DISPLAY_PERMISSION_MESSAGES: bool = settings.IMPERSONATE.get(
+    "DISPLAY_PERMISSION_MESSAGES", True
+)
 
-
-# Default expiry, in minutes
-DEFAULT_EXPIRY_MINS: int = _setting("DEFAULT_EXPIRY", 60, int)
-
-DISPLAY_MESSAGES: bool = _setting("DISPLAY_MESSAGES", True, bool)
-
-EXPIRY_WARNING_THRESHOLD = datetime.timedelta(
-    minutes=_setting("EXPIRY_WARNING_THRESHOLD_MINS", 10, int)
+# Interval within which to display flash messages as warnings
+PERMISSION_EXPIRY_WARNING_INTERVAL = datetime.timedelta(
+    minutes=settings.IMPERSONATE.get("PERMISSION_EXPIRY_WARNING_INTERVAL", 10)
 )

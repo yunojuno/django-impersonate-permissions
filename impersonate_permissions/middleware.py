@@ -12,7 +12,7 @@ from django.urls import reverse
 
 from impersonate_permissions.models import PermissionWindow
 
-from .settings import DISPLAY_MESSAGES, EXPIRY_WARNING_THRESHOLD
+from .settings import DISPLAY_PERMISSION_MESSAGES, PERMISSION_EXPIRY_WARNING_INTERVAL
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 def add_message(
     request: HttpRequest, window: PermissionWindow, level: int, template_name: str
 ) -> None:
-    if not DISPLAY_MESSAGES:
+    if not DISPLAY_PERMISSION_MESSAGES:
         return
     template = f"impersonate_permissions/{template_name}.tpl"
     message = render_to_string(template, context={"window": window})
@@ -46,7 +46,7 @@ class ImpersonatePermissionsMiddleware:
         if window:
             level = (
                 messages.INFO
-                if window.ttl > EXPIRY_WARNING_THRESHOLD
+                if window.ttl > PERMISSION_EXPIRY_WARNING_INTERVAL
                 else messages.WARNING
             )
             add_message(request, window, level, "impersonating")

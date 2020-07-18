@@ -9,17 +9,17 @@ from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from .settings import DEFAULT_EXPIRY_MINS
+from .settings import DEFAULT_PERMISSION_EXPIRY
 
 User = get_user_model()
 
 
 def default_expiry() -> datetime.datetime:
     """Return a timestamp based on DEFAULT_EXPIRY."""
-    return timezone.now() + datetime.timedelta(minutes=DEFAULT_EXPIRY_MINS)
+    return timezone.now() + datetime.timedelta(minutes=DEFAULT_PERMISSION_EXPIRY)
 
 
-def permitted_users(request: HttpRequest) -> models.QuerySet:
+def users_impersonable(request: HttpRequest) -> models.QuerySet:
     """Return users who can be impersonated."""
     user_ids = PermissionWindow.objects.active().values_list("user_id", flat=True)
     return User.objects.filter(id__in=user_ids).order_by("first_name", "last_name")

@@ -66,22 +66,23 @@ MIDDLEWARE = (
 )
 
 IMPERSONATE = {
-    CUSTOM_USER_QUERYSET = "impersonate_permissions.models.permitted_users"
+    "CUSTOM_USER_QUERYSET": "impersonate_permissions.models.permitted_users"
 }
 ```
 
 ## Settings
 
-The following settings can be set as environment variables or directly in Django settings.
+The following settings can be set in the Django settings module, as part of the `IMPERSONATE`
+dictionary.
 
-**IMPERSONATE_PERMISSIONS_DEFAULT_EXPIRY_MINS**
+**DEFAULT_PERMISSION_EXPIRY**
 
 An integer value that defines the default length of a permission 'window', in minutes, thereby
 setting its expiry.
 
 Default value is 60 - which equates to a one hour window.
 
-**IMPERSONATE_PERMISSIONS_DISPLAY_MESSAGES**
+**DISPLAY_PERMISSION_MESSAGES**
 
 A bool value that controls whether the middleware should add messages using the Django messages
 framework. If True, a message is set whilst impersonating, and another is set when a
@@ -89,7 +90,7 @@ PermissionWindow has expired, and the impersonation session cut.
 
 Default value is `True`
 
-**IMPERSONATE_PERMISSIONS_EXPIRY_WARNING_THRESHOLD**
+**PERMISSION_EXPIRY_WARNING_INTERVAL**
 
 An integer value which is used to turn the impersation message level from `INFO` to `WARNING`. Value
 is in minutes.

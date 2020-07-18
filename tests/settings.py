@@ -99,6 +99,14 @@ COVERAGE_MODULE_EXCLUDES = [
     "migrations",
 ]
 
-LOGIN_REDIRECT_URL = "/test"
+
+# app settings
+IMPERSONATE = {
+    "LOGIN_REDIRECT_URL": "/test",
+    "CUSTOM_USER_QUERYSET": "impersonate_permissions.models.users_impersonable",
+    "DEFAULT_PERMISSION_EXPIRY": 60,
+    "DISPLAY_PERMISSION_MESSAGES": True,
+    "PERMISSION_PERMISSION_EXPIRY_WARNING_INTERVAL": 10,
+}
 
 assert DEBUG, "This settings file can only be used with DEBUG=True"

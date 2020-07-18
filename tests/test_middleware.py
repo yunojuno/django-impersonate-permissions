@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from impersonate_permissions.models import PermissionWindow
-from impersonate_permissions.settings import EXPIRY_WARNING_THRESHOLD
+from impersonate_permissions.settings import PERMISSION_EXPIRY_WARNING_INTERVAL
 
 from impersonate_permissions.middleware import (  # add_message_expired,; add_message_impersonating,
     ImpersonatePermissionsMiddleware,
@@ -21,7 +21,7 @@ User = get_user_model()
 
 @pytest.mark.django_db
 class TestMiddlewareFunctions:
-    @mock.patch("impersonate_permissions.middleware.DISPLAY_MESSAGES", False)
+    @mock.patch("impersonate_permissions.middleware.DISPLAY_PERMISSION_MESSAGES", False)
     @mock.patch("impersonate_permissions.middleware.messages")
     def test_add_message__disabled(self, mock_messages):
         user = User.objects.create(username="user")
@@ -30,7 +30,7 @@ class TestMiddlewareFunctions:
         add_message(request, window, messages.INFO, "does_not_exist")
         assert mock_messages.add_message.call_count == 0
 
-    @mock.patch("impersonate_permissions.middleware.DISPLAY_MESSAGES", True)
+    @mock.patch("impersonate_permissions.middleware.DISPLAY_PERMISSION_MESSAGES", True)
     @mock.patch("impersonate_permissions.middleware.messages")
     def test_add_message(self, mock_messages):
         user = User.objects.create(username="user")
@@ -70,7 +70,7 @@ class TestImpersonatePermissionsMiddleware:
         request = mock.Mock(spec=HttpRequest, path="/", user=user2, real_user=user1)
         middleware = ImpersonatePermissionsMiddleware(lambda r: HttpResponse())
         assert window.is_active
-        assert window.ttl > EXPIRY_WARNING_THRESHOLD
+        assert window.ttl > PERMISSION_EXPIRY_WARNING_INTERVAL
         response = middleware(request)
         assert response.status_code == 200
         mock_msg.assert_called_once_with(
