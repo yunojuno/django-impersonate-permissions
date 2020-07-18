@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-impersonate-permissions"
-version = "0.1.0"
+version = "0.1.dev0"
 description = "Project template for Django app, using Poetry."
 license = "MIT"
 authors = ["YunoJuno <code@yunojuno.com>"]
