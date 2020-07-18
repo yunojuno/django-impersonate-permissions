@@ -41,7 +41,7 @@ class ImpersonatePermissionsMiddleware:
         if request.path == reverse("impersonate-stop"):
             return self.get_response(request)
 
-        # the user being impersonated is in the permitted_users
+        # the user being impersonated is in the users_impersonable
         window = request.user.permission_windows.active().last()
         if window:
             level = (

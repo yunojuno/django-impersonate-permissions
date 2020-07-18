@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.utils import timezone
 
-from impersonate_permissions.models import PermissionWindow, permitted_users
+from impersonate_permissions.models import PermissionWindow, users_impersonable
 
 User = get_user_model()
 
@@ -23,8 +23,8 @@ User = get_user_model()
         (-2, -1, True, False),
     ),
 )
-def test_permitted_users(start, end, enabled, exists):
-    """Check that permitted_users honours start, end and enabled values."""
+def test_users_impersonable(start, end, enabled, exists):
+    """Check that users_impersonable honours start, end and enabled values."""
     now = timezone.now()
     user = User.objects.create(username="Max")
     PermissionWindow.objects.create(
@@ -34,7 +34,7 @@ def test_permitted_users(start, end, enabled, exists):
         is_enabled=enabled,
     )
     request = mock.Mock(spec=HttpRequest)
-    assert permitted_users(request).exists() == exists
+    assert users_impersonable(request).exists() == exists
 
 
 @pytest.mark.django_db

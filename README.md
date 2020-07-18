@@ -25,7 +25,7 @@ def grant_permission(request):
     return HttpResponse("OK")
 ```
 
-Once you have an active PermissionWindow, the user will appear in the `permitted_users` queryset.
+Once you have an active PermissionWindow, the user will appear in the `users_impersonable` queryset.
 Whilst you are impersonating a user, the middleware will check that the permissions window is still
 valid. If it expires (or is disabled), the middleware will redirect the request to the
 `impersonate-stop` URL, effectively logging the impersonator out of the impersonation session.
@@ -36,7 +36,7 @@ The app itself contains a model, `PermissionWindow`, that is use to record a use
 a middleware class, `ImpersonatePermissionsMiddleware` that is used to enforce it.
 
 You will need to add the middleware to your `MIDDLEWARE` Django settings. It also contains a
-function `permitted_users` that you should set to the as the impersonate `CUSTOM_USER_QUERYSET`
+function `users_impersonable` that you should set to the as the impersonate `CUSTOM_USER_QUERYSET`
 function:
 
 ```python
@@ -66,7 +66,7 @@ MIDDLEWARE = (
 )
 
 IMPERSONATE = {
-    "CUSTOM_USER_QUERYSET": "impersonate_permissions.models.permitted_users"
+    "CUSTOM_USER_QUERYSET": "impersonate_permissions.models.users_impersonable"
 }
 ```
 
