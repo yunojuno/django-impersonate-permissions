@@ -17,26 +17,14 @@ from .settings import DISPLAY_MESSAGES, EXPIRY_WARNING_THRESHOLD
 logger = logging.getLogger(__name__)
 
 
-def add_message_impersonating(request: HttpRequest, window: PermissionWindow) -> None:
+def add_message(
+    request: HttpRequest, window: PermissionWindow, level: int, template_name: str
+) -> None:
     if not DISPLAY_MESSAGES:
         return
-    if window.ttl < EXPIRY_WARNING_THRESHOLD:
-        level = messages.WARNING
-    else:
-        level = messages.INFO
-    message = render_to_string(
-        "impersonate_permissions/impersonating.tpl", context={"window": window}
-    )
+    template = f"impersonate_permissions/{template_name}.tpl"
+    message = render_to_string(template, context={"window": window})
     messages.add_message(request, level, message)
-
-
-def add_message_expired(request: HttpRequest, window: PermissionWindow) -> None:
-    if not DISPLAY_MESSAGES:
-        return
-    message = render_to_string(
-        "impersonate_permissions/expired.tpl", context={"window": window}
-    )
-    messages.add_message(request, messages.INFO, message)
 
 
 class ImpersonatePermissionsMiddleware:
@@ -56,8 +44,13 @@ class ImpersonatePermissionsMiddleware:
         # the user being impersonated is in the permitted_users
         window = request.user.permission_windows.active().last()
         if window:
-            add_message_impersonating(request, window)
+            level = (
+                messages.INFO
+                if window.ttl > EXPIRY_WARNING_THRESHOLD
+                else messages.WARNING
+            )
+            add_message(request, window, level, "impersonating")
             return self.get_response(request)
 
-        add_message_expired(request, window)
+        add_message(request, window, messages.INFO, "expired")
         return redirect(reverse("impersonate-stop"))

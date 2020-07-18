@@ -2,18 +2,19 @@ import datetime
 from unittest import mock
 
 import pytest
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 
-from impersonate_permissions.middleware import (
-    ImpersonatePermissionsMiddleware,
-    add_message_expired,
-    add_message_impersonating,
-)
 from impersonate_permissions.models import PermissionWindow
 from impersonate_permissions.settings import EXPIRY_WARNING_THRESHOLD
+
+from impersonate_permissions.middleware import (  # add_message_expired,; add_message_impersonating,
+    ImpersonatePermissionsMiddleware,
+    add_message,
+)
 
 User = get_user_model()
 
@@ -22,59 +23,22 @@ User = get_user_model()
 class TestMiddlewareFunctions:
     @mock.patch("impersonate_permissions.middleware.DISPLAY_MESSAGES", False)
     @mock.patch("impersonate_permissions.middleware.messages")
-    def test_add_message_impersonating__disabled(self, mock_messages):
+    def test_add_message__disabled(self, mock_messages):
         user = User.objects.create(username="user")
         window = PermissionWindow.objects.create(user=user)
         request = mock.Mock(spec=HttpRequest, path="/", user=user)
-        add_message_impersonating(request, window)
+        add_message(request, window, messages.INFO, "does_not_exist")
         assert mock_messages.add_message.call_count == 0
 
     @mock.patch("impersonate_permissions.middleware.DISPLAY_MESSAGES", True)
     @mock.patch("impersonate_permissions.middleware.messages")
-    def test_add_message_impersonating__warning(self, mock_messages):
+    def test_add_message(self, mock_messages):
         user = User.objects.create(username="user")
         window = PermissionWindow.objects.create(user=user)
-        # force an expiry within the threshold
-        window.window_ends_at = (
-            timezone.now() + EXPIRY_WARNING_THRESHOLD - datetime.timedelta(minutes=1)
-        )
-        assert window.ttl < EXPIRY_WARNING_THRESHOLD
         request = mock.Mock(spec=HttpRequest, path="/", user=user)
-        add_message_impersonating(request, window)
+        add_message(request, window, messages.INFO, "impersonating")
         mock_messages.add_message.assert_called_once_with(
-            request, mock_messages.WARNING, mock.ANY
-        )
-
-    @mock.patch("impersonate_permissions.middleware.DISPLAY_MESSAGES", True)
-    @mock.patch("impersonate_permissions.middleware.messages")
-    def test_add_message_impersonating__info(self, mock_messages):
-        user = User.objects.create(username="user")
-        window = PermissionWindow.objects.create(user=user)
-        assert window.ttl > EXPIRY_WARNING_THRESHOLD
-        request = mock.Mock(spec=HttpRequest, path="/", user=user)
-        add_message_impersonating(request, window)
-        mock_messages.add_message.assert_called_once_with(
-            request, mock_messages.INFO, mock.ANY
-        )
-
-    @mock.patch("impersonate_permissions.middleware.DISPLAY_MESSAGES", False)
-    @mock.patch("impersonate_permissions.middleware.messages")
-    def test_add_message_expired__disabled(self, mock_messages):
-        user = User.objects.create(username="user")
-        window = PermissionWindow.objects.create(user=user)
-        request = mock.Mock(spec=HttpRequest, path="/", user=user)
-        add_message_expired(request, window)
-        assert mock_messages.add_message.call_count == 0
-
-    @mock.patch("impersonate_permissions.middleware.DISPLAY_MESSAGES", True)
-    @mock.patch("impersonate_permissions.middleware.messages")
-    def test_add_message_expired(self, mock_messages):
-        user = User.objects.create(username="user")
-        window = PermissionWindow.objects.create(user=user)
-        request = mock.Mock(spec=HttpRequest, path="/", user=user)
-        add_message_expired(request, window)
-        mock_messages.add_message.assert_called_once_with(
-            request, mock_messages.INFO, mock.ANY
+            request, messages.INFO, mock.ANY
         )
 
 
@@ -97,7 +61,7 @@ class TestImpersonatePermissionsMiddleware:
         response = middleware(request)
         assert response.status_code == 200
 
-    @mock.patch("impersonate_permissions.middleware.add_message_impersonating")
+    @mock.patch("impersonate_permissions.middleware.add_message")
     def test_middleware__impersonating(self, mock_msg):
         user1 = User.objects.create(username="impersonator")
         user2 = User.objects.create(username="impersonating")
@@ -106,11 +70,14 @@ class TestImpersonatePermissionsMiddleware:
         request = mock.Mock(spec=HttpRequest, path="/", user=user2, real_user=user1)
         middleware = ImpersonatePermissionsMiddleware(lambda r: HttpResponse())
         assert window.is_active
+        assert window.ttl > EXPIRY_WARNING_THRESHOLD
         response = middleware(request)
         assert response.status_code == 200
-        assert mock_msg.call_count == 1
+        mock_msg.assert_called_once_with(
+            request, window, messages.INFO, "impersonating"
+        )
 
-    @mock.patch("impersonate_permissions.middleware.add_message_expired")
+    @mock.patch("impersonate_permissions.middleware.add_message")
     def test_middleware__expired(self, mock_msg):
         user1 = User.objects.create(username="impersonator")
         user2 = User.objects.create(username="impersonating")
@@ -123,4 +90,4 @@ class TestImpersonatePermissionsMiddleware:
         response = middleware(request)
         assert response.status_code == 302
         assert response.url == reverse("impersonate-stop")
-        assert mock_msg.call_count == 1
+        mock_msg.assert_called_once_with(request, None, messages.INFO, "expired")
