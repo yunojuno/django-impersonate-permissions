@@ -66,7 +66,7 @@ MIDDLEWARE = (
 )
 
 IMPERSONATE = {
-    CUSTOM_USER_QUERYSET = "impersonate_permissions.models.permitted_users
+    CUSTOM_USER_QUERYSET = "impersonate_permissions.models.permitted_users"
 }
 ```
 
