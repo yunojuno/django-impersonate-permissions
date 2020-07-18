@@ -1,14 +1,14 @@
 [tool.poetry]
 name = "django-impersonate-permissions"
-version = "0.1.1.dev0"
+version = "0.1.2.dev0"
 description = "Django app that tracks user permssions when using django-impersonate."
 license = "MIT"
 authors = ["YunoJuno <code@yunojuno.com>"]
 maintainers = ["YunoJuno <code@yunojuno.com>"]
 readme = "README.md"
-homepage = "https://github.com/yunojuno/poetry-template"
-repository = "https://github.com/yunojuno/poetry-template"
-documentation = "https://github.com/yunojuno/poetry-template"
+homepage = "https://github.com/yunojuno/django-impersonate-permissions"
+repository = "https://github.com/yunojuno/django-impersonate-permissions"
+documentation = "https://github.com/yunojuno/django-impersonate-permissions"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Web Environment",
