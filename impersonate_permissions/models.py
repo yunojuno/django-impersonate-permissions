@@ -4,7 +4,7 @@ import datetime
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import models, transaction
 from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -39,6 +39,7 @@ class PermissionWindowQuerySet(models.QuerySet):
 
 
 class PermissionWindowManager(models.Manager):
+    @transaction.atomic
     def create(self, user: settings.AUTH_USER_MODEL, **kwargs: str) -> PermissionWindow:
         """Create new PermissionWindow and disable any existing windows."""
         user.permission_windows.active().disable()

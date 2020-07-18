@@ -1,0 +1,9 @@
+[run]
+include = impersonate_permissions/*
+omit =
+    .tox/*
+    .venv/*
+
+[report]
+omit = impersonate_permissions/migrations/*
+show_missing = True

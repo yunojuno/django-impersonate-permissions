@@ -1,6 +1,7 @@
 import datetime
 from unittest import mock
 
+import freezegun
 import pytest
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
@@ -36,6 +37,36 @@ def test_permitted_users(start, end, enabled, exists):
     assert permitted_users(request).exists() == exists
 
 
+@pytest.mark.django_db
+class TestPermissionWindowQuerySet:
+    def test_active(self):
+        user = User.objects.create(username="Max")
+        PermissionWindow(user=user).save()
+        assert PermissionWindow.objects.active().count() == 1
+        PermissionWindow(user=user).save()
+        assert PermissionWindow.objects.active().count() == 2
+
+    def test_disable(self):
+        user = User.objects.create(username="Max")
+        PermissionWindow(user=user).save()
+        PermissionWindow(user=user).save()
+        assert PermissionWindow.objects.active().count() == 2
+        PermissionWindow.objects.all().disable()
+        assert PermissionWindow.objects.active().count() == 0
+
+
+@pytest.mark.django_db
+class TestPermissionWindowManager:
+    def test_create(self):
+        """Test that create method disables existing windows."""
+        user = User.objects.create(username="Max")
+        pw1 = PermissionWindow.objects.create(user=user)
+        assert pw1.is_active
+        pw2 = PermissionWindow.objects.create(user=user)
+        pw1.refresh_from_db()
+        assert not pw1.is_active
+
+
 class TestPermissionWindow:
     @pytest.mark.django_db
     def test_disable(self):
@@ -46,3 +77,9 @@ class TestPermissionWindow:
         assert not pw.is_active
         pw.refresh_from_db()
         assert not pw.is_active
+
+    def test_ttl(self):
+        pw = PermissionWindow()
+        now = timezone.now()
+        with freezegun.freeze_time(now):
+            assert pw.ttl == pw.window_ends_at - now
