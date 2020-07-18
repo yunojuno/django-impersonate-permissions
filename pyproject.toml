@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-impersonate-permissions"
-version = "0.1.2.dev0"
+version = "0.2"
 description = "Django app that tracks user permssions when using django-impersonate."
 license = "MIT"
 authors = ["YunoJuno <code@yunojuno.com>"]
@@ -10,7 +10,7 @@ homepage = "https://github.com/yunojuno/django-impersonate-permissions"
 repository = "https://github.com/yunojuno/django-impersonate-permissions"
 documentation = "https://github.com/yunojuno/django-impersonate-permissions"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Environment :: Web Environment",
     "Framework :: Django",
     "Framework :: Django :: 3.0",
