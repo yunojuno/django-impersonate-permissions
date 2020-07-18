@@ -28,7 +28,7 @@ def test_permitted_users(start, end, enabled, exists):
     user = User.objects.create(username="Max")
     PermissionWindow.objects.create(
         user=user,
-        windows_starts_at=now + datetime.timedelta(hours=start),
+        window_starts_at=now + datetime.timedelta(hours=start),
         window_ends_at=now + datetime.timedelta(hours=end),
         is_enabled=enabled,
     )

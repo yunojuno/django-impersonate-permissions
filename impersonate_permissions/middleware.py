@@ -7,9 +7,36 @@ from django.contrib import messages
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 
+from impersonate_permissions.models import PermissionWindow
+
+from .settings import DISPLAY_MESSAGES, EXPIRY_WARNING_THRESHOLD_MINS
+
 logger = logging.getLogger(__name__)
+
+
+def add_message_impersonating(request: HttpRequest, window: PermissionWindow) -> None:
+    if not DISPLAY_MESSAGES:
+        return
+    if window.ttl.total_seconds() < (EXPIRY_WARNING_THRESHOLD_MINS * 60):
+        level = messages.WARNING
+    else:
+        level = messages.INFO
+    message = render_to_string(
+        "impersonate_permissions/impersonating.tpl", context={"window": window}
+    )
+    messages.add_message(request, level, message)
+
+
+def add_message_expired(request: HttpRequest, window: PermissionWindow) -> None:
+    if not DISPLAY_MESSAGES:
+        return
+    message = render_to_string(
+        "impersonate_permissions/expired.tpl", context={"window": window}
+    )
+    messages.add_message(request, messages.INFO, message)
 
 
 class ImpersonatePermissionsMiddleware:
@@ -38,14 +65,10 @@ class ImpersonatePermissionsMiddleware:
             return self.get_response(request)
 
         # the user being impersonated is in the permitted_users
-        windows = request.user.permission_windows.all()
-        if windows.active() | windows.open():
+        window = request.user.permission_windows.active().last()
+        if window:
+            add_message_impersonating(request, window)
             return self.get_response(request)
 
-        messages.add_message(
-            request,
-            messages.INFO,
-            "Impersonation permission window is no longer active.",
-        )
-
+        add_message_expired(request, window)
         return redirect(reverse("impersonate-stop"))

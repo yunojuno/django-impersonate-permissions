@@ -11,7 +11,6 @@ repos:
       rev: 19.10b0
       hooks:
           - id: black
-            language_version: python3.7
 
     # PEP8 linting, with added Django goodness, and custom YJ plugin
     - repo: https://github.com/pre-commit/mirrors-pylint

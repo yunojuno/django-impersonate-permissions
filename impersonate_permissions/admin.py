@@ -9,7 +9,7 @@ class PermissionWindowAdmin(admin.ModelAdmin):
 
     list_display = (
         "user",
-        "windows_starts_at",
+        "window_starts_at",
         "window_ends_at",
         "is_enabled",
         "is_active_",
