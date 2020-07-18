@@ -10,10 +10,9 @@ homepage = "https://github.com/yunojuno/poetry-template"
 repository = "https://github.com/yunojuno/poetry-template"
 documentation = "https://github.com/yunojuno/poetry-template"
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Environment :: Web Environment",
     "Framework :: Django",
-    "Framework :: Django :: 2.2",
     "Framework :: Django :: 3.0",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
