@@ -1,3 +1,4 @@
+import datetime
 from os import getenv
 from typing import Any, Callable
 
@@ -14,4 +15,6 @@ DEFAULT_EXPIRY_MINS: int = _setting("DEFAULT_EXPIRY", 60, int)
 
 DISPLAY_MESSAGES: bool = _setting("DISPLAY_MESSAGES", True, bool)
 
-EXPIRY_WARNING_THRESHOLD_MINS: int = _setting("EXPIRY_WARNING_THRESHOLD_MINS", 10, int)
+EXPIRY_WARNING_THRESHOLD = datetime.timedelta(
+    minutes=_setting("EXPIRY_WARNING_THRESHOLD_MINS", 10, int)
+)

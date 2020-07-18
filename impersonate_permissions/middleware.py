@@ -12,7 +12,7 @@ from django.urls import reverse
 
 from impersonate_permissions.models import PermissionWindow
 
-from .settings import DISPLAY_MESSAGES, EXPIRY_WARNING_THRESHOLD_MINS
+from .settings import DISPLAY_MESSAGES, EXPIRY_WARNING_THRESHOLD
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 def add_message_impersonating(request: HttpRequest, window: PermissionWindow) -> None:
     if not DISPLAY_MESSAGES:
         return
-    if window.ttl.total_seconds() < (EXPIRY_WARNING_THRESHOLD_MINS * 60):
+    if window.ttl < EXPIRY_WARNING_THRESHOLD:
         level = messages.WARNING
     else:
         level = messages.INFO
@@ -40,23 +40,12 @@ def add_message_expired(request: HttpRequest, window: PermissionWindow) -> None:
 
 
 class ImpersonatePermissionsMiddleware:
-    """
-    Extract and verify request tokens from incoming GET requests.
+    """Verify impersonation permissions, and log user out if none exists."""
 
-    This middleware is used to perform initial JWT verfication of
-    link tokens.
-
-    """
-
-    def __init__(self, get_response: Callable):
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]):
         self.get_response = get_response
 
     def __call__(self, request: HttpRequest) -> HttpResponse:  # noqa: C901
-        """
-        Verify impersonation permissions.
-
-        This call will fail hard if the request has no user attribute.
-        """
         if not request.user.is_impersonate:
             return self.get_response(request)
 
