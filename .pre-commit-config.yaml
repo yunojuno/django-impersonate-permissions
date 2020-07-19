@@ -2,7 +2,7 @@
 repos:
     # python import sorting - will amend files
     - repo: https://github.com/pre-commit/mirrors-isort
-      rev: v5.1.1
+      rev: v5.1.3
       hooks:
           - id: isort
 
