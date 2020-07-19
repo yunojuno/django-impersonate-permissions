@@ -98,6 +98,35 @@ There are three templates included with the app, `impersonating.tpl`, `expired.t
 `impersonated.tpl`, that are used to render the flash messages shown to users who are impersonating,
 or being impersonated. You can overwrite these templates to change the message if you wish.
 
+**impersonating.tpl**
+
+Shown to users who are impersonating another user. Message level is `messages.INFO`, switching to
+`messages.WARNING` as the `PermissionWinow.ttl` drops below the `PERMISSION_EXPIRY_WARNING_INTERVAL`
+setting:
+
+```
+{% load humanize %}You are currently impersonating {{ impersonating.get_full_name }}.
+Your session will expire at {{ window.window_ends_at | naturaltime }} ({{ window.window_ends_at }}).
+```
+
+**expired.tpl**
+
+Shown to users who have been kicked out of an impersonation session by the
+`EnforcePermissionWindowMiddleware` when a window expires:
+
+```
+Your impersonation window has expired.
+```
+
+**impersonated.tpl**
+
+Shown to users who are being impersonated, if `ImpersonationAlertMiddleware` is installed:
+
+````
+Your account is currently being accessed by a member of staff. If you have not given explicit
+consent for this account access, please contact customer support.
+```
+
 ### Context Processor
 
 There is a context processor, `impersonation`, which can be used to add three properties to template
@@ -109,7 +138,7 @@ render contexts. This is just a shortcut to existing request properties:
     "impersonator": request.real_user,
     "impersonating": request.user,
 }
-```
+````
 
 ## Settings
 
