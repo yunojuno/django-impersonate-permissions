@@ -66,10 +66,48 @@ MIDDLEWARE = (
     ...
 )
 
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [path.join(PROJECT_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.contrib.messages.context_processors.messages",
+                "django.contrib.auth.context_processors.auth",
+                "impersonate_permissions.context_processors.impersonation",
+            ]
+        },
+    }
+]
+
 IMPERSONATE = {
     "CUSTOM_USER_QUERYSET": "impersonate_permissions.models.users_impersonable",
     "DEFAULT_PERMISSION_EXPIRY": 60,
     "PERMISSION_EXPIRY_WARNING_INTERVAL": 10,
+}
+```
+
+There is a second piece of middleware, `ImpersonationAlertMiddleware`, that is optional - if
+installed it will add a flash message (using the `django.contrib.messages` app) for users who are
+being impersonated.
+
+### Templates
+
+There are three templates included with the app, `impersonating.tpl`, `expired.tpl`, and
+`impersonated.tpl`, that are used to render the flash messages shown to users who are impersonating,
+or being impersonated. You can overwrite these templates to change the message if you wish.
+
+### Context Processor
+
+There is a context processor, `impersonation`, which can be used to add three properties to template
+render contexts. This is just a shortcut to existing request properties:
+
+```python
+{
+    "is_impersonate": True,
+    "impersonator": request.real_user,
+    "impersonating": request.user,
 }
 ```
 
