@@ -8,7 +8,7 @@ def impersonation(
     request: HttpRequest,
 ) -> Dict[str, Union[bool, Optional[settings.AUTH_USER_MODEL]]]:
     """Add impersonate info to template context."""
-    if request.user.is_impersonate:
+    if request.user.is_authenticated and request.user.is_impersonate:
         return {
             "is_impersonate": True,
             "impersonator": request.real_user,
