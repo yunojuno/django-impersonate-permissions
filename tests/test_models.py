@@ -62,7 +62,7 @@ class TestPermissionWindowManager:
         user = User.objects.create(username="Max")
         pw1 = PermissionWindow.objects.create(user=user)
         assert pw1.is_active
-        pw2 = PermissionWindow.objects.create(user=user)
+        _ = PermissionWindow.objects.create(user=user)
         pw1.refresh_from_db()
         assert not pw1.is_active
 

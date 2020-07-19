@@ -32,7 +32,6 @@ def test_impersonation__true():
 
 def test_impersonation__anonymous():
     user = AnonymousUser()
-    real_user = User()
     request = mock.Mock(spec=HttpRequest, user=user)
     context = impersonation(request)
     assert context["is_impersonate"] is False

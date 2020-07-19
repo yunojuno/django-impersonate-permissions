@@ -33,7 +33,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "impersonate.middleware.ImpersonateMiddleware",
-    "impersonate_permissions.middleware.ImpersonatePermissionsMiddleware",
+    "impersonate_permissions.middleware.EnforcePermissionWindowMiddleware",
 ]
 
 PROJECT_DIR = path.abspath(path.join(path.dirname(__file__)))

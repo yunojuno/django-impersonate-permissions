@@ -33,7 +33,7 @@ valid. If it expires (or is disabled), the middleware will redirect the request 
 ## Use
 
 The app itself contains a model, `PermissionWindow`, that is use to record a user's permission, and
-a middleware class, `ImpersonatePermissionsMiddleware` that is used to enforce it.
+a middleware class, `EnforcePermissionWindowMiddleware` that is used to enforce it.
 
 You will need to add the middleware to your `MIDDLEWARE` Django settings. It also contains a
 function `users_impersonable` that you should set to the as the impersonate `CUSTOM_USER_QUERYSET`
@@ -61,12 +61,15 @@ MIDDLEWARE = (
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "impersonate.middleware.ImpersonateMiddleware",
-    "impersonate_permissions.middleware.ImpersonatePermissionsMiddleware",
+    "impersonate_permissions.middleware.EnforcePermissionWindowMiddleware",
+    "impersonate_permissions.middleware.ImpersonationAlertMiddleware",
     ...
 )
 
 IMPERSONATE = {
-    "CUSTOM_USER_QUERYSET": "impersonate_permissions.models.users_impersonable"
+    "CUSTOM_USER_QUERYSET": "impersonate_permissions.models.users_impersonable",
+    "DEFAULT_PERMISSION_EXPIRY": 60,
+    "PERMISSION_EXPIRY_WARNING_INTERVAL": 10,
 }
 ```
 
@@ -81,14 +84,6 @@ An integer value that defines the default length of a permission 'window', in mi
 setting its expiry.
 
 Default value is 60 - which equates to a one hour window.
-
-**DISPLAY_PERMISSION_MESSAGES**
-
-A bool value that controls whether the middleware should add messages using the Django messages
-framework. If True, a message is set whilst impersonating, and another is set when a
-PermissionWindow has expired, and the impersonation session cut.
-
-Default value is `True`
 
 **PERMISSION_EXPIRY_WARNING_INTERVAL**
 
