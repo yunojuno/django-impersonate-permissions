@@ -122,7 +122,7 @@ Your impersonation window has expired.
 
 Shown to users who are being impersonated, if `ImpersonationAlertMiddleware` is installed:
 
-````
+```
 Your account is currently being accessed by a member of staff. If you have not given explicit
 consent for this account access, please contact customer support.
 ```
@@ -138,7 +138,7 @@ render contexts. This is just a shortcut to existing request properties:
     "impersonator": request.real_user,
     "impersonating": request.user,
 }
-````
+```
 
 ## Settings
 
